@@ -10,17 +10,18 @@ class Infinity extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return (MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: "Infinity",
-        theme: ThemeData(
-          // Add the 5 lines from here...
-          appBarTheme: const AppBarTheme(
-            backgroundColor: Colors.black,
-            foregroundColor: Colors.white,
-          ),
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: "Infinity",
+      theme: ThemeData(
+        // Add the 5 lines from here...
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.black,
+          foregroundColor: Colors.white,
         ),
-        home: const RandomWords()));
+      ),
+      home: const RandomWords(),
+    );
   }
 }
 
@@ -35,6 +36,7 @@ class _RandomWordsState extends State<RandomWords> {
   final _suggestions = <WordPair>[];
   final _biggerFont = const TextStyle(fontSize: 18);
   final _saved = <WordPair>{};
+
   void _pushSaved() {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
@@ -42,14 +44,22 @@ class _RandomWordsState extends State<RandomWords> {
           final tiles = _saved.map(
             (pair) {
               return ListTile(
-                title: Text(
-                  pair.asPascalCase,
-                  style: _biggerFont,
-                ),
-              );
+                  title: Text(
+                    pair.asPascalCase,
+                    style: _biggerFont,
+                  ),
+                  trailing: IconButton(
+                    onPressed: () {
+                      // Add remove from saved
+                      setState(() {
+                        _saved.remove(pair);
+                      });
+                    },
+                    icon: const Icon(Icons.delete),
+                  ));
             },
           );
-          final divided = tiles.isNotEmpty
+          var divided = tiles.isNotEmpty
               ? ListTile.divideTiles(
                   context: context,
                   tiles: tiles,
@@ -60,7 +70,9 @@ class _RandomWordsState extends State<RandomWords> {
             appBar: AppBar(
               title: const Text('Saved Suggestions'),
             ),
-            body: ListView(children: divided),
+            body: ListView(
+              children: divided,
+            ),
           );
         },
       ), // ...to here.
@@ -71,10 +83,10 @@ class _RandomWordsState extends State<RandomWords> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text("Infinity 2022"),
+          title: const Text("Infinity 2023"),
           actions: [
             IconButton(
-              icon: const Icon(Icons.list),
+              icon: const Icon(Icons.workspaces_filled),
               onPressed: _pushSaved,
               tooltip: 'Saved Suggestions',
             ),
@@ -86,6 +98,7 @@ class _RandomWordsState extends State<RandomWords> {
             if (i.isOdd) return const Divider(); /*2*/
 
             final index = i ~/ 2; /*3*/
+
             if (index >= _suggestions.length) {
               _suggestions.addAll(generateWordPairs().take(10)); /*4*/
             }
