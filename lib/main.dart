@@ -1,135 +1,83 @@
-import 'package:flutter/material.dart';
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
+
 import 'package:english_words/english_words.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import 'screens/my_home_page.dart';
 
 void main() {
-  runApp(const Infinity());
+  runApp(MyApp());
 }
 
-class Infinity extends StatelessWidget {
-  const Infinity({Key? key}) : super(key: key);
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: "Infinity",
-      theme: ThemeData(
-        // Add the 5 lines from here...
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.black,
-          foregroundColor: Colors.white,
+    return ChangeNotifierProvider(
+      create: (context) => MyAppState(),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Infinity',
+        theme: ThemeData(
+          useMaterial3: true,
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         ),
+        home: MyHomePage(),
       ),
-      home: const RandomWords(),
     );
   }
 }
 
-class RandomWords extends StatefulWidget {
-  const RandomWords({super.key});
+class MyAppState extends ChangeNotifier {
+  var current = WordPair.random();
+  var history = <WordPair>[];
 
-  @override
-  State<RandomWords> createState() => _RandomWordsState();
-}
+  GlobalKey? historyListKey;
 
-class _RandomWordsState extends State<RandomWords> {
-  final _suggestions = <WordPair>[];
-  final _biggerFont = const TextStyle(fontSize: 18);
-  final _saved = <WordPair>{};
+  void getNext() {
+    history.insert(0, current);
+    var animatedList = historyListKey?.currentState as AnimatedListState?;
+    animatedList?.insertItem(0);
+    print(animatedList);
+    current = WordPair.random();
+    notifyListeners();
+  }
 
-  void _pushSaved() {
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (context) {
-          final tiles = _saved.map(
-            (pair) {
-              return ListTile(
-                  title: Text(
-                    pair.asPascalCase,
-                    style: _biggerFont,
-                  ),
-                  trailing: IconButton(
-                    onPressed: () {
-                      // Add remove from saved
-                      setState(() {
-                        _saved.remove(pair);
-                      });
-                    },
-                    icon: const Icon(Icons.delete),
-                  ));
-            },
-          );
-          var divided = tiles.isNotEmpty
-              ? ListTile.divideTiles(
-                  context: context,
-                  tiles: tiles,
-                ).toList()
-              : <Widget>[];
+  var favorites = <WordPair>[];
 
-          return Scaffold(
-            appBar: AppBar(
-              title: const Text('Saved Suggestions'),
-            ),
-            body: ListView(
-              children: divided,
-            ),
-          );
+  void toggleFavorite([WordPair? pair]) {
+    pair = pair ?? current;
+    if (favorites.contains(pair)) {
+      favorites.remove(pair);
+    } else {
+      favorites.add(pair);
+    }
+    notifyListeners();
+  }
+
+  void removeFavorite(WordPair pair) {
+    favorites.remove(pair);
+    notifyListeners();
+  }
+
+  void _clearAllItems() {
+    for (var i = 0; i <= history.length - 1; i++) {
+      var animatedList = historyListKey?.currentState as AnimatedListState?;
+      animatedList?.removeItem(
+        0,
+        (BuildContext context, Animation<double> animation) {
+          return Container();
         },
-      ), // ...to here.
-    );
+      );
+    }
+    history.clear();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: const Text("Infinity 2023"),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.workspaces_filled),
-              onPressed: _pushSaved,
-              tooltip: 'Saved Suggestions',
-            ),
-          ],
-        ),
-        body: ListView.builder(
-          padding: const EdgeInsets.all(16.0),
-          itemBuilder: /*1*/ (context, i) {
-            if (i.isOdd) return const Divider(); /*2*/
-
-            final index = i ~/ 2; /*3*/
-
-            if (index >= _suggestions.length) {
-              _suggestions.addAll(generateWordPairs().take(10)); /*4*/
-            }
-
-            final alreadySaved = _saved.contains(_suggestions[index]);
-
-            return ListTile(
-              title: Text(
-                _suggestions[index].asPascalCase,
-                style: _biggerFont,
-              ),
-              trailing: Icon(
-                // NEW from here ...
-                alreadySaved ? Icons.favorite : Icons.favorite_border,
-                color: alreadySaved
-                    ? const Color.fromARGB(255, 220, 93, 84)
-                    : null,
-                semanticLabel: alreadySaved ? 'Remove from saved' : 'Save',
-              ),
-              onTap: () {
-                // NEW from here ...
-                setState(() {
-                  if (alreadySaved) {
-                    _saved.remove(_suggestions[index]);
-                  } else {
-                    _saved.add(_suggestions[index]);
-                  }
-                }); // to here.
-              },
-            );
-          },
-        ));
+  void reset() {
+    favorites.clear();
+    _clearAllItems();
+    notifyListeners();
   }
 }
