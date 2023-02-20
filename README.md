@@ -4,7 +4,7 @@ Flutter tutorial for creating desktop apps.
 
 ## Getting Started
 
-Infinity words app is tutorial from flutter cookbook.
+Infinity words app is a tutorial from flutter cookbook.
 
 A few resources to get you started if this is your first Flutter project:
 
@@ -24,12 +24,17 @@ A few resources to get you started if this is your first Flutter project:
 - ```
   Saved Words
   ```
-  ![Screen 1.0](screenshots/screen03.png)
+  ![Screen 3.0](screenshots/screen03.png)
+
+- ```
+  Responsiveness
+  ```
+  ![Screen 4.0](screenshots/screen04.png)
 
 
 ------
-## Help
+## My personal touch
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+As an improvement, I've added a reset button, which clears word history and favorite words.
+
+
